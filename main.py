@@ -2,6 +2,17 @@ import os
 import sqlite3
 from datetime import datetime
 
+"""
+ПОЯСНЕНИЯ
+
+assumptions
+1. Все операции по фильтрации, агрегации и т.п., кроме подстановки даты, должны быть сделано при помощи SQL
+2. Рассылки по регистрации и по активности - 2 разные сущности, так что одному пользователю может быть отправлено что-то одно, или оба сообщения сразу
+3. В один и тот же день письма по активности одному и тому же пользователю не отправлялись - в противном случае записи в результате будут дублироваться,
+   что проще отлавливать уже программно
+
+"""
+
 DB_FILENAME = 'db_test_zadanie.sqlite'
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 SQL_SCRIPT_DIR = os.path.join(APP_DIR, 'sql_scripts')
@@ -46,13 +57,14 @@ def fetch_user_message_list(date: datetime, on_existing_sent: str = 'skip') -> l
     return res_list
 
 if __name__ == '__main__':
-    ondate = datetime(2024, 5, 15)
+    ondate = datetime(2024, 6, 15)
     print(f'For date {ondate.strftime('%Y-%m-%d')}:')
 
     # вариант 1 (если отправлялись сообщения - больше не шлём)
     res_list = fetch_user_message_list(ondate, on_existing_sent='skip')
 
-    print_list = res_list#[(x[0], x[1], x[9], x[10]) for x in res_list]
+    # в целях тестирования/оценки скрипт возвращает больше данных, чем необходимо, поэтому тут они обрезаются
+    print_list = [(x[0], x[1], x[8], x[9]) for x in res_list]
 
     print('Список по в.1')
 
@@ -62,7 +74,7 @@ if __name__ == '__main__':
     # вариант 2 (если отправлялись сообщения - отправлять, если прошел срок)
     res_list = fetch_user_message_list(ondate, on_existing_sent='recalc')
 
-    print_list = res_list#[(x[0], x[1], x[9], x[10]) for x in res_list]
+    print_list = [(x[0], x[1], x[8], x[9]) for x in res_list]
 
     print('Список по в.2')
 
