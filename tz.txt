@@ -1,0 +1,79 @@
+create table main.schedule
+(
+    id                      integer not null
+        primary key autoincrement,
+    days_from_registration  integer,
+    days_from_last_activity integer,
+    message                 varchar not null
+);
+days_from_registration - через сколько дней после регистрации посылать сообщение
+days_from_last_activity -через сколько дней после последней активности посылать сообщение
+
+
+create table main.user
+(
+    id                integer not null
+        primary key autoincrement,
+    user_name         text    not null,
+    registration_date date    not null,
+    last_activity     date    not null
+);
+
+
+
+create table main.list_send_message
+(
+    id          integer not null
+        primary key autoincrement,
+    time_send   date,
+    user_id     integer,
+    schedule_id integer
+);
+
+
+insert into user
+(user_name, registration_date,last_activity)
+values
+("Иванов И",'2023-01-01','2024-04-01'),
+("Петров С",'2024-05-01','2024-05-01'),
+("Сидоров Г",'2024-06-01','2024-06-10'),
+("Елкин Д",'2023-05-01','2024-06-01'),
+("Ойра-Ойра Р",'2024-04-01','2024-05-20'),
+("Кошкина К",'2022-06-01','2024-06-10'),
+("Гвидо ван Росcум",'2023-07-01','2024-06-10');
+
+
+
+insert  into schedule
+(days_from_registration,days_from_last_activity  ,message)
+values(10,NULL,"прошло 10 дней после регистрации"),
+(30,NULL,"прошло месяц после регистрации"),
+(365,NULL,"прошло год после регистрации"),
+(NULL,5,"вы не заходили 5 дней"),
+(NULL,10,"вы не заходили 10 дней"),
+(NULL,30,"вы не заходили 30 дней");
+
+
+insert into list_send_message
+(schedule_id,user_id,time_send)
+values
+(1,1,'2024-06-10'),
+(1,2,'2024-06-10'),
+(1,1,'2024-06-10'),
+(2,3,'2024-06-10'),
+(2,1,'2024-06-10'),
+(4,1,'2024-01-10'),
+(5,2,'2024-04-10'),
+(6,1,'2024-06-10');
+
+
+получить sql-запросами список юзеров и соответсвующих сообщений которые им надо отправить на заданную параметром дату(любую)
+с условаиями отсылки
+пользователь         расписание
+registration_date <= days_from_registration
+last_activity     <= days_from_last_activity
+
+вариант 1: если сообщение было отправлено, то повторно не отпарвлять
+вариант 2*: для сообщений отправленных по параметру days_from_last_activity,
+    и где пользователь был активен после отправки,
+    отпаравить сообщение заново, если прошел срок
